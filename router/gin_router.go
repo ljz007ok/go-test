@@ -1,51 +1,73 @@
 package router
 
 import (
+	"context"
+	"github.com/ljz007ok/go-test/router/user"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
-	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 )
 
-type Option func(*gin.Engine)
+type option func(*gin.RouterGroup)
 
-var options = []Option{}
+var options = []option{}
 
 // 注册所有模块的路由配置
-func include(opts ...Option) {
+func include(opts ...option) {
 	options = append(options, opts...)
 }
 
 // 加载各个模块的初始化
 func routerInit() *gin.Engine {
-	r := gin.Default()
+	router := gin.Default()
+	// 创建一个路由前缀，所有请求都以这个前缀开始，建议配置到配置文件里
+	prefixRouter := router.Group("/test")
+
+	// 所有模块都需要在这里注册
+	include(user.Routers)
+
+	// 对所有的模块的路由进行初始化
 	for _, opt := range options {
-		opt(r)
+		opt(prefixRouter)
 	}
-	return r
+	return router
 }
 
 // 启动gin服务
 func Gininit() {
-	// 加载多个APP的路由配置
-	include(shop.Routers, blog.Routers)
-	// 初始化路由
-	r := routerInit()
+	router := routerInit()
+
+	server := &http.Server{
+		Addr:           ":8080",
+		Handler:        router,
+		ReadTimeout:    180 * time.Second,
+		WriteTimeout:   180 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
 
 	// 启动web服务器
 	go func() {
-		// 优雅实现关机和重启
-		// 默认endless服务器会监听下列信号：
-		// syscall.SIGHUP，syscall.SIGUSR1，syscall.SIGUSR2，syscall.SIGINT，syscall.SIGTERM和syscall.SIGTSTP
-		// 接收到 SIGHUP 信号将触发`fork/restart` 实现优雅重启（kill -1 pid会发送SIGHUP信号）
-		// 接收到 syscall.SIGINT或syscall.SIGTERM 信号将触发优雅关机
-		// 接收到 SIGUSR2 信号将触发HammerTime
-		// SIGUSR1 和 SIGTSTP 被用来触发一些用户自定义的hook函数
-		err := endless.ListenAndServe(":8888", r)
-		if err != nil {
+		// 优雅地重启或停止
+		// 服务连接
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
-		} else {
-			log.Println("Server exiting")
 		}
 	}()
+
+	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
+	log.Println("Server exiting")
 }

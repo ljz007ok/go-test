@@ -1,20 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"unicode/utf8"
+	"github.com/ljz007ok/go-test/router"
 )
 
 func main() {
-	s := "台湾九合abc一选举"
-	ss := []rune(s)
-	fmt.Println(len(ss))
+	router.Gininit()
 
-	sss := utf8.RuneCountInString(s)
-	fmt.Println(sss)
-
-	char := "♥"
-	ssss := []rune(char)
-	fmt.Println(len(ssss))
-	fmt.Println(len(char))
 }

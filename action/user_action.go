@@ -1,44 +1,42 @@
 package action
 
 import (
-	"net/http"
-	"sync"
-
 	"github.com/gin-gonic/gin"
+	"github.com/ljz007ok/go-test/global"
+	"net/http"
 )
 
 type userAction struct {
 }
 
-var instance *userAction
-var once sync.Once
+var action *userAction
 
 // 实现单例
 func GetUserAction() *userAction {
-	once.Do(func() {
-		instance = &userAction{}
+	global.Once.Do(func() {
+		action = &userAction{}
 	})
-	return instance
+	return action
 }
 
-func SelectUser(c *gin.Context) {
+func (userAction) SelectUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Hello world!",
 	})
 }
 
-func FindUser(c *gin.Context) {
+func (userAction) FindUser(c *gin.Context) {
 
 }
 
-func SaveUser(c *gin.Context) {
+func (userAction) SaveUser(c *gin.Context) {
 
 }
 
-func UpdateUser(c *gin.Context) {
+func (userAction) UpdateUser(c *gin.Context) {
 
 }
 
-func DeleteUser(c *gin.Context) {
+func (userAction) DeleteUser(c *gin.Context) {
 
 }
