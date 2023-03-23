@@ -1,9 +1,11 @@
 package action
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ljz007ok/go-test/global"
-	"net/http"
 )
 
 type userAction struct {
@@ -39,4 +41,8 @@ func (userAction) UpdateUser(c *gin.Context) {
 
 func (userAction) DeleteUser(c *gin.Context) {
 
+}
+
+func init() {
+	log.Println("user_action的init函数")
 }
