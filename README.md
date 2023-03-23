@@ -99,12 +99,13 @@ go get -u github.com/fvbock/endless
 
 ​		[Zap](https://github.com/uber-go/zap)是非常快的、结构化的，分日志级别的Go日志库。它同时提供了结构化日志记录和printf风格的日志记录。
 
-​		golang提供的Logger没有日志级别，只有一个`Print`选项。不支持`INFO`/`DEBUG`等多个级别。对于错误日志，它有`Fatal`和`Panic`。Fatal日志通过调用`os.Exit(1)`来结束程序。Panic日志在写入日志消息之后抛出一个panic。但是它缺少一个ERROR日志级别，这个级别可以在不抛出panic或退出程序的情况下记录错误。缺乏日志格式化的能力——例如记录调用者的函数名和行号，格式化日期和时间格式。等等。不提供日志切割的能力。
-
-​		
+​		golang提供的Logger没有日志级别，只有一个`Print`选项。不支持`INFO`/`DEBUG`等多个级别。对于错误日志，它有`Fatal`和`Panic`。Fatal日志通过调用`os.Exit(1)`来结束程序。Panic日志在写入日志消息之后抛出一个panic。但是它缺少一个ERROR日志级别，这个级别可以在不抛出panic或退出程序的情况下记录错误。缺乏日志格式化的能力——例如记录调用者的函数名和行号，格式化日期和时间格式。等等。不提供日志切割的能力。		
 
 ````shell
 go get -u go.uber.org/zap
+
+# 日志切割依赖
+go get -u github.com/natefinch/lumberjack
 ````
 
 ## 引入Viper配置文件管理依赖
