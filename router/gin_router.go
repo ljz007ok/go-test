@@ -2,6 +2,9 @@ package router
 
 import (
 	"context"
+	"github.com/ljz007ok/go-test/logger"
+	"github.com/ljz007ok/go-test/router/user"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"os"
@@ -20,15 +23,22 @@ import (
 // 加载各个模块的初始化
 func routerInit() *gin.Engine {
 	// 强制日志颜色化
-	gin.ForceConsoleColor()
+	//gin.ForceConsoleColor()
 
+	// 有三种模式TestMode、DebugMode、ReleaseMode(默认)
+	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
+	//router := gin.New()
+	router.Use(logger.GinLogger(), logger.GinRecovery(true))
+
+	global.Options = append(global.Options, user.Routers)
+
 	// 创建一个路由前缀，所有请求都以这个前缀开始，建议配置到配置文件里
-	prefixRouter := router.Group("/test")
+	prefixGroup := router.Group("/test")
 
 	// 对所有的模块已经注册的路由进行初始化
 	for _, opt := range global.Options {
-		opt(prefixRouter)
+		opt(prefixGroup)
 	}
 	return router
 }
@@ -52,6 +62,7 @@ func Gininit() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
+		zap.L().Info("服务器启动成功")
 	}()
 
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
@@ -67,8 +78,4 @@ func Gininit() {
 		log.Fatal("Server Shutdown:", err)
 	}
 	log.Println("Server exiting")
-}
-
-func init() {
-	log.Println("gin_router执行init函数")
 }

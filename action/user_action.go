@@ -1,7 +1,6 @@
 package action
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -41,8 +40,4 @@ func (userAction) UpdateUser(c *gin.Context) {
 
 func (userAction) DeleteUser(c *gin.Context) {
 
-}
-
-func init() {
-	log.Println("user_action的init函数")
 }

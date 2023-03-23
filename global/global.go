@@ -8,6 +8,6 @@ import (
 
 var Once sync.Once
 
-type Option func(*gin.RouterGroup)
+type Option func(group *gin.RouterGroup)
 
 var Options = []Option{}
